@@ -1,0 +1,11 @@
+extends: 
+    - ibm.spectral.yaml 
+    - cimpress.spectral.yaml 
+    - oas.spectral.yaml 
+    - owasp.spectral.yaml 
+
+
+
+
+
+

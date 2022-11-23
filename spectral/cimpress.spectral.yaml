@@ -1,0 +1,621 @@
+functions:
+  - is-object-schema
+
+parserOptions:
+  duplicateKeys: warn # error is the default value
+  incompatibleValues: warn # error is the default value
+
+# ###########################################################################################
+# Section 1: Language                                                                       #
+# ###########################################################################################
+
+rules:
+
+  cimpress-endpoint-description-length:
+    description: The endpoint description should be at least 128 characters.
+    message: The endpoint description should be at least 128 characters.
+    severity: warn
+    recommended: true
+    given: $.paths[*][*].description
+    then:
+      function: length
+      functionOptions:
+        min: 128
+
+  cimpress-language-avoid-jargon:
+    description: Try to avoid jargon and use commonly used terms instead
+    message: Try to avoid jargon and use commonly used terms instead
+    severity: warn
+    recommended: true
+    given:
+      - "$.info.title"
+      - "$.info.summary"
+      - "$.info.description"
+      - "$.paths.*~"
+      - "$.paths.*.*.parameters[?(@.in==='query' || @.in==='path' || @.in==='cookie')].name"
+      - "$.paths.*.*.parameters[?(@.in==='query' || @.in==='path' || @.in==='cookie')].description"
+      - "$.components.schemas.*~"
+      - "$..properties.*~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: (pan)
+
+  cimpress-paths-params-camel-case:
+    description: "Path parameter keys MUST use camelCase."
+    message: "Path parameter keys MUST use camelCase."
+    severity: error
+    recommended: true
+    given: $.paths.*.*.parameters[?(@.in=='path')].name
+    then:
+      function: casing
+      functionOptions:
+        type: camel
+        disallowDigits: true
+
+  cimpress-query-params-camel-case:
+    description: "Query parameter keys MUST use camelCase."
+    message: "Query parameter keys MUST use camelCase."
+    severity: error
+    recommended: true
+    given: $.paths.*.*.parameters[?(@.in=='query')].name
+    then:
+      function: casing
+      functionOptions:
+        type: camel
+        disallowDigits: true
+  
+  cimpress-definitions-camel-case:
+    description: All YAML/JSON definitions MUST follow fields-camelCase and be ASCII alphanumeric characters or `_` or `$`.
+    severity: error
+    recommended: true
+    message: "{{property}} MUST follow camelCase and be ASCII alphanumeric characters or `_` or `$`."
+    given: $.definitions[*]~
+    then:
+      function: casing
+      functionOptions:
+        type: camel
+        disallowDigits: true
+
+  cimpress-properties-camel-case:
+    description: All JSON Schema properties MUST follow fields-camelCase and be ASCII alphanumeric characters or `_` or `$`.
+    severity: error
+    recommended: true
+    message: "{{property}} MUST follow camelCase and be ASCII alphanumeric characters or `_` or `$`."
+    given: $.definitions..properties[*]~
+    then:
+      function: casing
+      functionOptions:
+        type: camel
+        disallowDigits: true
+  
+  cimpress-oas2-example-exists-in-parameters:
+    description: All models MUST have a valid example.
+    message: "{{ property }} MUST have a valid example."
+    severity: error
+    recommended: true
+    formats:
+      - oas2
+    given: "$..parameters..[?(@.in == 'body' && (@.example || @.schema.$ref))]"
+    then: 
+      function: truthy
+
+  cimpress-oas3-valid-example-in-parameters:
+    description: Examples must be valid against their defined schema.
+    message: "{{error}}"
+    severity: error
+    recommended: true
+    formats:
+      - oas3
+    given: "$..parameters..[?(@.in == 'body')]..[?(@property !== 'properties' && @.example
+      && ( @.type || @.format || @.$ref ))]"
+    then:
+      function: truthy
+             
+  cimpress-created-at-read-only:
+    description: Property createdAt MUST be readOnly
+    message: Property createdAt MUST be readOnly
+    severity: error
+    recommended: true
+    given: $..properties.createdAt
+    then:
+      - field: "readOnly"
+        function: truthy
+
+  cimpress-updated-at-read-only:
+    description: Property updatedAt MUST be readOnly
+    message: Property updatedAt MUST be readOnly
+    severity: error
+    recommended: true
+    given: $..properties.updatedAt
+    then:
+      - field: "readOnly"
+        function: truthy
+
+  cimpress-definitions-sort:
+    description: Definitions should be sorted alphabetically
+    message: Definitions should be sorted alphabetically
+    severity: warn
+    recommended: true
+    given: $.definitions
+    then:
+      function: alphabetical
+
+  cimpress-definitions-no-payload:
+    description: Definition names MUST not end in Payload
+    message: Definition names MUST not end in Payload
+    severity: error
+    recommended: true
+    given: $.definitions.~
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: '^.*[Pp]ayload$'
+
+  cimpress-language-non-inclusive:
+    description: Non-inclusive terms have been found
+    message: Non-inclusive terms have been found
+    severity: error
+    recommended: true
+    given:
+      - "$.info.title"
+      - "$.info.summary"
+      - "$.info.description"
+      - "$.paths.*~"
+      - "$.paths.*.*.parameters[?(@.in==='query' || @.in==='path' || @.in==='cookie')].name"
+      - "$.paths.*.*.parameters[?(@.in==='query' || @.in==='path' || @.in==='cookie')].description"
+      - "$.components.schemas.*~"
+      - "$..properties.*~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: (blacklist|Blacklist|black_list|whitelist|Whitelist|white_list|slave|Slave)
+
+  cimpress-language-filler-words:
+    description: Filler words 
+    message: Filler words
+    severity: warn
+    recommended: true
+    given:
+      - "$.paths.*~"
+      - "$.paths.*.*.parameters[?(@.in==='query' || @.in==='path' || @.in==='cookie')].name"
+      - "$.components.schemas.*~"
+      - "$..properties.*~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: (_info|_details)
+
+# #######################################################################################
+# Section 2: URIs                                                                       #
+# #######################################################################################
+
+  cimpress-limit-path-size:
+    description: APIs SHOULD NOT expand their total URL length beyond a few hundred characters.
+    message: APIs SHOULD NOT expand their total URL length beyond a few hundred characters.
+    severity: warn
+    recommended: true
+    given: $.paths.*~
+    then:
+      function: length
+      functionOptions:
+        max: 75
+  
+  cimpress-oas2-protocol-https-only:
+    description: "ALL requests MUST go through `https` protocol only"
+    message: "Schemes MUST be https and no other value is allowed."
+    formats:
+      - oas2
+    recommended: true
+    severity: error
+    type: "style"
+    given: $
+    then:
+      field: schemes
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          items:
+            type: string
+            enum: ["https"]
+          maxItems: 1
+
+  
+  cimpress-hosts-no-port:
+    description: "Port MUST NOT be specified or required to use the API."
+    message: "Port MUST NOT be specified or required to use the API."
+    formats: [oas3]
+    severity: error
+    recommended: true
+    given: $.servers..url
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: (https?://.*):(\d*)\/?(.*)  
+        
+  cimpress-uri-no-backslash:
+    description: The backslash is not allowed, use the forward slash ("/") instead
+    message: The backslash is not allowed, use the forward slash ("/") instead
+    severity: error
+    recommended: true
+    given: "$.paths.*~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: \\
+
+  cimpress-uri-no-empty-path-segments:
+    description : Empty path segments are not allowed
+    message: Empty path segments are not allowed
+    severity: error
+    recommended: true
+    given: "$.paths.*~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: //
+
+  cimpress-uri-no-api-suffix:
+    description: Don't use "api" in a path, should be part of the host instead
+    message: Don't use "api" in a path, should be part of the host instead
+    severity: error
+    recommended: true
+    given: "$.paths[*]~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: /.*(api\b).*/i
+
+  cimpress-uri-no-file-extensions:
+    description: Paths must not end with file types such as .json and .xml. Use response types instead.
+    message: Paths must not end with file types such as .json and .xml. Use response types instead.
+    severity: error
+    recommended: true
+    given: "$.paths[*]~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: .(\.json|\.xml|\.html|\.txt)$
+
+  cimpress-api-healthcheck-endpoint:
+    description : "Creating a `/health` endpoint is a simple solution for pull-based monitoring and manually checking the status of an API."
+    message: "Creating a `/health` endpoint is a simple solution for pull-based monitoring and manually checking the status of an API."
+    severity: error
+    recommended: true
+    given: $.paths
+    then: 
+      field: "/health"
+      function: truthy
+
+# #################################################################################################
+# Section 3: REST & Resources                                                                     #
+# #################################################################################################
+
+  cimpress-json-root-json-objects:
+    description: Requests and responses must be JSON objects
+    message: Requests and responses must be JSON objects
+    severity: error
+    recommended: true
+    given: "$.paths.*.*[responses,requestBody]..content..schema"
+    then:
+      function: is-object-schema
+  
+  cimpress-rest-no-crud-in-uri-names:
+    description: SHOULD NOT use CRUD function names in URIs
+    message: SHOULD NOT use CRUD function names in URIs
+    severity: error
+    recommended: true
+    given: "$.paths[*]~"
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: ^\/(get|put|post|patch|options|head|trace|update|delete|create|list).*
+
+# ################################################################################################
+# Section 4: HTTP requests                                                                       #
+# ################################################################################################
+
+  cimpress-requests-get-no-request-body:
+    description: There must be no request body for GET
+    message: There must be no request body for GET
+    severity: error
+    recommended: true
+    given: "$.paths.*.get"
+    then:
+      field: requestBody
+      function: falsy
+            
+  cimpress-requests-delete-no-request-body:
+    description: There must be no request body for DELETE
+    message: There must be no request body for DELETE
+    severity: error
+    recommended: true
+    given: "$.paths.*.delete"
+    then:
+      field: requestBody
+      function: falsy
+
+# #################################################################################################
+# Section 5: HTTP responses                                                                       #
+# #################################################################################################
+
+  cimpress-responses-default-response:
+    description: Operation does not contain a default response
+    message: Operation does not contain a default response
+    severity: off
+    recommended: true
+    given: $.paths.*.*.responses
+    then:
+      field: default
+      function: truthy
+
+  cimpress-responses-standard-status-codes:
+    description: Response codes must be limited to a small predefined set of HTTP status codes
+    message: Response codes must be limited to a small predefined set of HTTP status codes
+    severity: error
+    recommended: true
+    given: $.paths.*.*.responses.*~
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - '200'
+          - '201'
+          - '202'
+          - '204'
+          - '400'
+          - '401'
+          - '403'
+          - '404'
+          - '405'
+          - '406'
+          - '409'
+          - '416'
+          - '422'
+          - '500'
+          - default
+
+  cimpress-responses-error-not-rfc7807:
+    description: All error responses must be either RFC 7807 or application/json or application/xml.
+    severity: error
+    recommended: true
+    given: "$.paths.[*].responses[?(@property.match(/^(4|5)/))].content.*~"
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - application/problem+json
+          - application/json
+          - application/xml
+
+  cimpress-responses-media-types-200:
+    description: Any 200 response SHOULD only return media types as defined
+    message: Any 200 response SHOULD only return media types as defined
+    severity: warn
+    recommended: true
+    given: "$.paths.[*].responses[?(@property.match(/^(2)/))].content.*~"
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - text/csv
+          - application/zip
+          - application/json
+          - application/xml
+          - multipart/form-data
+
+  cimpress-responses-get-200-status-code:
+    description: A GET operation must have a 200 status code for the response
+    message: A GET operation must have a 200 status code for the response
+    severity: error
+    recommended: true
+    given: "$.paths[*].get.responses"
+    then:
+      field: '200'
+      function: truthy
+
+  cimpress-responses-get-200-media-type:
+    description: A GET operation should have an application/json media type for 200 response
+    message: A GET operation should have an application/json media type for 200 response
+    severity: warn
+    recommended: true
+    given: "$paths.get.responses.200.content"
+    then:
+      field: application/json
+      function: truthy
+
+  cimpress-responses-get-no-409:
+    description: GET responses should not include a 409 response
+    message: GET responses should not include a 409 response
+    severity: warn
+    recommended: true
+    given: "$.paths.*[?(@property === 'get' && @.responses && @.responses['409'])]"
+    then:
+      function: falsy
+
+  cimpress-responses-post-201-status-code:
+    description: A POST operation should have a 201 status code for the response
+    message: A POST operation should have a 201 status code for the response
+    severity: warn
+    recommended: true
+    given: "$.paths[*].post.responses"
+    then:
+      field: '201'
+      function: truthy
+
+  cimpress-responses-post-201-media-type:
+    description: POST responses should have a JSON body
+    message: POST responses should have a JSON body
+    severity: error
+    recommended: true
+    given: "$paths.post.responses.201.content"
+    then:
+      field: application/json
+      function: truthy
+
+  cimpress-responses-put-204-status-code:
+    description: A PUT operation should have a 204 status code for the response
+    message: A PUT operation should have a 204 status code for the response
+    severity: warn
+    recommended: true
+    given: "$.paths[*].put.responses"
+    then:
+      field: '204'
+      function: truthy
+
+  cimpress-responses-put-500-status-code:
+    description: A PUT operation should have a 500 status code for the response
+    message: A PUT operation should have a 500 status code for the response
+    severity: warn
+    recommended: true
+    given: "$.paths[*].put.responses"
+    then:
+      field: '500'
+      function: truthy
+
+  cimpress-responses-delete-204-status-code:
+    description: A DELETE operation should have a 204 status code with the response
+    message: A DELETE operation should have a 204 status code with the response
+    severity: warn
+    recommended: true
+    given: "$.paths[*].delete.responses"
+    then:
+      field: '204'
+      function: truthy
+
+
+  cimpress-define-error-responses-404:
+    description: Responses should contain common response - 404 (not found)
+    message: '{{description}}. Missing {{property}}'
+    severity: error
+    recommended: true
+    given: $.paths[?(@property.match(/.*\/{.*}.*/))]..responses
+    then:
+      field: '404'
+      function: truthy
+
+
+
+  cimpress-oas3-response-success-OK:
+    description: "All success responses MUST be of media type `application/hal+json` or `application/problem+json`"
+    severity: error
+    given: $.paths..responses[?( @property == 200 )].content[*]~
+    recommended: true
+    formats:
+      - oas3
+    message: "Response documents MUST be of application/hal+json or application/problem+json media types: {{error}}"
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - application/hal+json
+          - application/problem+json
+          
+  cimpress-oas3-response-success-hal-body: # schemes and/or produces
+    description: "All success responses MUST follow `application/hal+json` schema"
+    severity: error
+    given: $.paths..responses[?( @property == 200 && @property < 300 && @property != 204)].content[?(@property === "application/hal+json")]
+    recommended: true
+    type: "style"
+    formats:
+      - oas3
+    message: "Response documents MUST follow application/hal+json schema: {{error}}"
+    then:
+      field: schema
+      function: schema
+      functionOptions:
+        schema:
+          $ref: "./supermodel/HAL.yaml"
+  
+  cimpress-oas2-response-success-hal: # schemes and/or produces
+    description: "All success responses MUST be of media type `application/hal+json`"
+    severity: error
+    given: $.paths..responses[?( @property >= 200 && @property < 300 && @property != 204)]
+    recommended: true
+    type: "style"
+    formats:
+      - oas2
+    message: "Response documents MUST follow application/hal+json: {{error}}"
+    then:
+      field: schema
+      function: schema
+      functionOptions:
+        schema:
+          $ref: "./supermodel/HAL.yaml"
+
+  cimpress-oas2-response-error-problem: # schemas and/or produces
+    description: All error responses MUST be of media type `application/problem+json`
+    severity: error
+    formats:
+      - oas2
+    given: $.paths..responses[?( @property >= 400 && @property < 600 )]
+    recommended: true
+    type: "style"
+    message: "Error response document MUST follow application/problem+json: {{error}}"
+    then:
+      field: schema.example
+      function: schema
+      functionOptions:
+        schema:
+          $ref: "./supermodel/ProblemDetail.yaml"
+
+# ############################################################################################################
+# Section 6: Versioning & Specificaiton                                                                      #
+# ############################################################################################################
+
+  cimpress-no-global-versioning:
+    description : Using global versions just forces all your clients to do a lot more work for each upgrade. Please consider using API Evolution instead. More- https://apisyouwonthate.com/blog/api-evolution-for-rest-http-apis.
+    message: Using global versions just forces all your clients to do a lot more work for each upgrade. Please consider using API Evolution instead. More- https://apisyouwonthate.com/blog/api-evolution-for-rest-http-apis.
+    given: "$.servers[*].url"
+    then: 
+      function: pattern
+      functionOptions: 
+        notMatch: "/v[1-9]+"
+        
+  cimpress-semver:
+    description: Version should use semantic versioning. {{value}} is not a valid version.
+    message: Version should use semantic versioning. {{value}} is not a valid version.
+    severity: warn
+    recommended: true
+    given: $.info.version
+    then:
+      function: pattern
+      functionOptions:
+        match: "^([0-9]+.[0-9]+.[0-9]+)$"
+
+# ############################################################################################################
+# Section 7: Security                                                                                        #
+# ############################################################################################################
+
+  cimpress-no-numeric-ids:
+    description: Please avoid exposing IDs as an integer, UUIDs are preferred.
+    message: Please avoid exposing IDs as an integer, UUIDs are preferred.
+    severity: error
+    recommended: true
+    given: $.paths..parameters[*].[?(@property === "name" && (@ === "id" || @.match(/(_id|Id)$/)))]^.schema
+    then:
+      function: schema
+      functionOptions: 
+        schema: 
+          type: object
+          not: 
+            properties:
+              type: 
+                const: integer
+          properties:
+            format: 
+              const: uuid
+              
+  cimpress-no-http-basic:
+    description: "Consider a more secure alternative to HTTP Basic."
+    message: "HTTP Basic is an insecure way to pass credentials around, use an alternative."
+    severity: error
+    recommended: true
+    given: $.components.securitySchemes[*]
+    then:
+      field: scheme
+      function: pattern
+      functionOptions:
+        notMatch: basic
+

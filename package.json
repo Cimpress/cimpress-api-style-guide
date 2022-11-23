@@ -1,0 +1,28 @@
+{
+  "name": "api-guidelines",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/Cimpress-Technology/storefront/proof-of-concept/api-governance/api-guidelines.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/Cimpress-Technology/storefront/proof-of-concept/api-governance/api-guidelines/issues"
+  },
+  "homepage": "https://gitlab.com/Cimpress-Technology/storefront/proof-of-concept/api-governance/api-guidelines#readme",
+  "dependencies": {
+    "@ibm-cloud/openapi-ruleset": "^0.44.2",
+    "@stoplight/spectral-cli": "^6.6.0",
+    "@stoplight/spectral-core": "^1.15.1",
+    "@stoplight/spectral-owasp-ruleset": "^1.1.1",
+    "@stoplight/spectral-ruleset-bundler": "^1.4.0",
+    "@stoplight/spectral-runtime": "^1.1.2",
+    "ibm-openapi-validator": "^0.96.2"
+  }
+}

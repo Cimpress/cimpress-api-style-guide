@@ -1,0 +1,7 @@
+extends: 
+  - "@stoplight/spectral-owasp-ruleset"
+
+rules: 
+   owasp:api7:2019-security-hosts-https-oas3: off # our swagger contains only relative path name 
+
+

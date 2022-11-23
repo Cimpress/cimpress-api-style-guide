@@ -1,0 +1,15 @@
+extends: 
+ - "@ibm-cloud/openapi-ruleset"
+
+rules: 
+  property-case-convention : off
+  parameter-case-convention: off
+  path-segment-case-convention: off
+  enum-case-convention: off
+  operation-id-case-convention: off
+  operation-id-naming-convention: false
+# ####################################################################################################
+#  Trying to satisfy the following rules , will break the existing API. Hence making it a warning.   #
+# ####################################################################################################
+  array-responses: warn 
+  request-body-object: warn 
