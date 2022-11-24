@@ -1,0 +1,5 @@
+- id: openapi-lint
+  name: Cimpress OpenAPI Linter
+  description: This hook trims trailing whitespace.
+  entry: trailing-whitespace-fixer
+  language: docker
