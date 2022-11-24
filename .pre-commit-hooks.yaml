@@ -1,6 +1,14 @@
 - id: openapi-lint
   name: Cimpress OpenAPI Linter
-  description: This hook trims trailing whitespace.
+  description: This hook lints OpenAPI spec according to the rfc specifications of RFC-2
   entry: spectral lint --ruleset /app/.spectral.yml
   language: docker
   types: [yaml, json]
+- id: openapi-lint-node
+  name: Cimpress OpenAPI Linter using Node Runtime
+  description: This hook lints OpenAPI spec according to the rfc specifications of RFC-2
+  types:
+    - yaml
+    - json
+  language: node
+  entry: spectral
