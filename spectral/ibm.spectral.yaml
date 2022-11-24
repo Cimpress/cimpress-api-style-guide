@@ -8,8 +8,6 @@ rules:
   enum-case-convention: off
   operation-id-case-convention: off
   operation-id-naming-convention: off
-# ####################################################################################################
-#  Trying to satisfy the following rules , will break the existing API. Hence making it a warning.   #
-# ####################################################################################################
+# Trying to satisfy the following rules , will break the existing API. Hence making it a warning.
   array-responses: warn 
   request-body-object: warn 
