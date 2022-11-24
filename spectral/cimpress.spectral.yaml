@@ -415,15 +415,6 @@ rules:
       field: '200'
       function: truthy
 
-  cimpress-responses-get-200-media-type:
-    description: A GET operation should have an application/json media type for 200 response
-    message: A GET operation should have an application/json media type for 200 response
-    severity: warn
-    recommended: true
-    given: "$paths.get.responses.200.content"
-    then:
-      field: application/json
-      function: truthy
 
   cimpress-responses-get-no-409:
     description: GET responses should not include a 409 response
@@ -444,15 +435,6 @@ rules:
       field: '201'
       function: truthy
 
-  cimpress-responses-post-201-media-type:
-    description: POST responses should have a JSON body
-    message: POST responses should have a JSON body
-    severity: error
-    recommended: true
-    given: "$paths.post.responses.201.content"
-    then:
-      field: application/json
-      function: truthy
 
   cimpress-responses-put-204-status-code:
     description: A PUT operation should have a 204 status code for the response
@@ -495,22 +477,6 @@ rules:
       field: '404'
       function: truthy
 
-
-
-  cimpress-oas3-response-success-OK:
-    description: "All success responses MUST be of media type `application/hal+json` or `application/problem+json`"
-    severity: error
-    given: $.paths..responses[?( @property == 200 )].content[*]~
-    recommended: true
-    formats:
-      - oas3
-    message: "Response documents MUST be of application/hal+json or application/problem+json media types: {{error}}"
-    then:
-      function: enumeration
-      functionOptions:
-        values:
-          - application/hal+json
-          - application/problem+json
           
   cimpress-oas3-response-success-hal-body: # schemes and/or produces
     description: "All success responses MUST follow `application/hal+json` schema"
