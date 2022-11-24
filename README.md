@@ -20,7 +20,7 @@ sudo spectral lint  [file path/url for swagger] --ruleset spectral/cimpress.all.
 OR 
 
 ``` bash
-sudo node index.js [file path/url for swagger] result.json
+sudo node example.js [file path/url for swagger] result.json
 ```
 
 
