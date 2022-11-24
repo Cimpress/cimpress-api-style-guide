@@ -1,6 +1,6 @@
-extends: 
+extends:
   - spectral:oas
   - spectral:asyncapi
 
-rules: 
+rules:
   operation-tag-defined: off
