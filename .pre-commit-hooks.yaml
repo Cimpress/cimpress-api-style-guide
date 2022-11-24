@@ -3,4 +3,3 @@
   description: This hook trims trailing whitespace.
   entry: spectral lint --ruleset /app/.spectral.yml
   language: docker
-  types: [yaml, json]
