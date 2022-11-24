@@ -44,7 +44,7 @@ rules:
   cimpress-paths-params-camel-case:
     description: "Path parameter keys MUST use camelCase."
     message: "Path parameter keys MUST use camelCase."
-    severity: error
+    severity: warn
     recommended: true
     given: $.paths.*.*.parameters[?(@.in=='path')].name
     then:
@@ -56,7 +56,7 @@ rules:
   cimpress-query-params-camel-case:
     description: "Query parameter keys MUST use camelCase."
     message: "Query parameter keys MUST use camelCase."
-    severity: error
+    severity: warn
     recommended: true
     given: $.paths.*.*.parameters[?(@.in=='query')].name
     then:
@@ -67,7 +67,7 @@ rules:
   
   cimpress-definitions-camel-case:
     description: All YAML/JSON definitions MUST follow fields-camelCase and be ASCII alphanumeric characters or `_` or `$`.
-    severity: error
+    severity: warn
     recommended: true
     message: "{{property}} MUST follow camelCase and be ASCII alphanumeric characters or `_` or `$`."
     given: $.definitions[*]~
@@ -79,7 +79,7 @@ rules:
 
   cimpress-properties-camel-case:
     description: All JSON Schema properties MUST follow fields-camelCase and be ASCII alphanumeric characters or `_` or `$`.
-    severity: error
+    severity: warn
     recommended: true
     message: "{{property}} MUST follow camelCase and be ASCII alphanumeric characters or `_` or `$`."
     given: $.definitions..properties[*]~
@@ -191,8 +191,8 @@ rules:
 # #######################################################################################
 
   cimpress-limit-path-size:
-    description: APIs SHOULD NOT expand their total URL length beyond a few hundred characters.
-    message: APIs SHOULD NOT expand their total URL length beyond a few hundred characters.
+    description: APIs SHOULD NOT expand their total URL length beyond a 75 characters.
+    message: APIs SHOULD NOT expand their total URL length beyond a 75characters.
     severity: warn
     recommended: true
     given: $.paths.*~
@@ -310,7 +310,7 @@ rules:
     then:
       function: pattern
       functionOptions:
-        notMatch: ^\/(get|put|post|patch|options|head|trace|update|delete|create|list).*
+        notMatch: ^\/(get|put|post|patch|options|head|trace|update|delete|create|list|manage).*
 
 # ################################################################################################
 # Section 4: HTTP requests                                                                       #
