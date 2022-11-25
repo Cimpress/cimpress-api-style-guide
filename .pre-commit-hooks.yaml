@@ -3,10 +3,12 @@
   description: This hook lints OpenAPI spec according to the rfc specifications of RFC-2
   entry: spectral lint --ruleset /app/.spectral.yml
   language: docker
-  files: \.(json|yaml|yml)$
+  types: [yaml, json]
+  always_run: true
 - id: openapi-lint-node
   name: Cimpress OpenAPI Linter using Node Runtime
   description: This hook lints OpenAPI spec according to the rfc specifications of RFC-2
+  types: [yaml, json]
   language: node
-  files: \.(json|yaml|yml)$
   entry: spectral
+  always_run: true
