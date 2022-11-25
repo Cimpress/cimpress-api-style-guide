@@ -7,8 +7,6 @@
 - id: openapi-lint-node
   name: Cimpress OpenAPI Linter using Node Runtime
   description: This hook lints OpenAPI spec according to the rfc specifications of RFC-2
-  types:
-    - yaml
-    - json
+  types: [yaml, json]
   language: node
   entry: spectral
