@@ -1,0 +1,5 @@
+extends:
+  - ./spectral/ibm.spectral.yaml
+  - ./spectral/cimpress.spectral.yaml
+  - ./spectral/oas.spectral.yaml
+  - ./spectral/owasp.spectral.yaml
