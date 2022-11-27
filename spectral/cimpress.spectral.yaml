@@ -377,7 +377,7 @@ rules:
           - default
 
   cimpress-responses-error-not-rfc7807:
-    description: All error responses must be either RFC 7807 or application/json or application/xml.
+    description: All error responses must be either RFC 7807 or application/json or application/xml or application/problem+json. Recommendation - application/problem+json
     severity: error
     recommended: true
     given: "$.paths.[*].responses[?(@property.match(/^(4|5)/))].content.*~"
