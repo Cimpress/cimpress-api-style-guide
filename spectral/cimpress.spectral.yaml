@@ -10,11 +10,10 @@ parserOptions:
 # ###########################################################################################
 
 rules:
-
   cimpress-endpoint-description-length:
     description: The endpoint description should be at least 128 characters.
     message: The endpoint description should be at least 128 characters.
-    severity: warn
+    severity: info
     recommended: true
     given: $.paths[*][*].description
     then:
@@ -64,7 +63,7 @@ rules:
       functionOptions:
         type: camel
         disallowDigits: true
-  
+
   cimpress-definitions-camel-case:
     description: All YAML/JSON definitions MUST follow fields-camelCase and be ASCII alphanumeric characters or `_` or `$`.
     severity: warn
@@ -88,7 +87,7 @@ rules:
       functionOptions:
         type: camel
         disallowDigits: true
-  
+
   cimpress-oas2-example-exists-in-parameters:
     description: All models MUST have a valid example.
     message: "{{ property }} MUST have a valid example."
@@ -97,7 +96,7 @@ rules:
     formats:
       - oas2
     given: "$..parameters..[?(@.in == 'body' && (@.example || @.schema.$ref))]"
-    then: 
+    then:
       function: truthy
 
   cimpress-oas3-valid-example-in-parameters:
@@ -107,11 +106,12 @@ rules:
     recommended: true
     formats:
       - oas3
-    given: "$..parameters..[?(@.in == 'body')]..[?(@property !== 'properties' && @.example
+    given:
+      "$..parameters..[?(@.in == 'body')]..[?(@property !== 'properties' && @.example
       && ( @.type || @.format || @.$ref ))]"
     then:
       function: truthy
-             
+
   cimpress-created-at-read-only:
     description: Property createdAt MUST be readOnly
     message: Property createdAt MUST be readOnly
@@ -150,7 +150,7 @@ rules:
     then:
       function: pattern
       functionOptions:
-        notMatch: '^.*[Pp]ayload$'
+        notMatch: "^.*[Pp]ayload$"
 
   cimpress-language-non-inclusive:
     description: Non-inclusive terms have been found
@@ -172,7 +172,7 @@ rules:
         notMatch: (blacklist|Blacklist|black_list|whitelist|Whitelist|white_list|slave|Slave)
 
   cimpress-language-filler-words:
-    description: Filler words 
+    description: Filler words
     message: Filler words
     severity: warn
     recommended: true
@@ -186,9 +186,9 @@ rules:
       functionOptions:
         notMatch: (_info|_details)
 
-# #######################################################################################
-# Section 2: URIs                                                                       #
-# #######################################################################################
+  # #######################################################################################
+  # Section 2: URIs                                                                       #
+  # #######################################################################################
 
   cimpress-limit-path-size:
     description: APIs SHOULD NOT expand their total URL length beyond a 75 characters.
@@ -200,7 +200,7 @@ rules:
       function: length
       functionOptions:
         max: 75
-  
+
   cimpress-oas2-protocol-https-only:
     description: "ALL requests MUST go through `https` protocol only"
     message: "Schemes MUST be https and no other value is allowed."
@@ -221,7 +221,6 @@ rules:
             enum: ["https"]
           maxItems: 1
 
-  
   cimpress-hosts-no-port:
     description: "Port MUST NOT be specified or required to use the API."
     message: "Port MUST NOT be specified or required to use the API."
@@ -232,8 +231,8 @@ rules:
     then:
       function: pattern
       functionOptions:
-        notMatch: (https?://.*):(\d*)\/?(.*)  
-        
+        notMatch: (https?://.*):(\d*)\/?(.*)
+
   cimpress-uri-no-backslash:
     description: The backslash is not allowed, use the forward slash ("/") instead
     message: The backslash is not allowed, use the forward slash ("/") instead
@@ -246,7 +245,7 @@ rules:
         notMatch: \\
 
   cimpress-uri-no-empty-path-segments:
-    description : Empty path segments are not allowed
+    description: Empty path segments are not allowed
     message: Empty path segments are not allowed
     severity: error
     recommended: true
@@ -279,18 +278,18 @@ rules:
         notMatch: .(\.json|\.xml|\.html|\.txt)$
 
   cimpress-api-healthcheck-endpoint:
-    description : "Creating a `/health` endpoint is a simple solution for pull-based monitoring and manually checking the status of an API."
+    description: "Creating a `/health` endpoint is a simple solution for pull-based monitoring and manually checking the status of an API."
     message: "Creating a `/health` endpoint is a simple solution for pull-based monitoring and manually checking the status of an API."
     severity: error
     recommended: true
     given: $.paths
-    then: 
+    then:
       field: "/health"
       function: truthy
 
-# #################################################################################################
-# Section 3: REST & Resources                                                                     #
-# #################################################################################################
+  # #################################################################################################
+  # Section 3: REST & Resources                                                                     #
+  # #################################################################################################
 
   cimpress-json-root-json-objects:
     description: Requests and responses must be JSON objects
@@ -300,7 +299,7 @@ rules:
     given: "$.paths.*.*[responses,requestBody]..content..schema"
     then:
       function: is-object-schema
-  
+
   cimpress-rest-no-crud-in-uri-names:
     description: SHOULD NOT use CRUD function names in URIs
     message: SHOULD NOT use CRUD function names in URIs
@@ -312,9 +311,9 @@ rules:
       functionOptions:
         notMatch: ^\/(get|put|post|patch|options|head|trace|update|delete|create|list|manage).*
 
-# ################################################################################################
-# Section 4: HTTP requests                                                                       #
-# ################################################################################################
+  # ################################################################################################
+  # Section 4: HTTP requests                                                                       #
+  # ################################################################################################
 
   cimpress-requests-get-no-request-body:
     description: There must be no request body for GET
@@ -325,7 +324,7 @@ rules:
     then:
       field: requestBody
       function: falsy
-            
+
   cimpress-requests-delete-no-request-body:
     description: There must be no request body for DELETE
     message: There must be no request body for DELETE
@@ -336,9 +335,9 @@ rules:
       field: requestBody
       function: falsy
 
-# #################################################################################################
-# Section 5: HTTP responses                                                                       #
-# #################################################################################################
+  # #################################################################################################
+  # Section 5: HTTP responses                                                                       #
+  # #################################################################################################
 
   cimpress-responses-default-response:
     description: Operation does not contain a default response
@@ -360,20 +359,20 @@ rules:
       function: enumeration
       functionOptions:
         values:
-          - '200'
-          - '201'
-          - '202'
-          - '204'
-          - '400'
-          - '401'
-          - '403'
-          - '404'
-          - '405'
-          - '406'
-          - '409'
-          - '416'
-          - '422'
-          - '500'
+          - "200"
+          - "201"
+          - "202"
+          - "204"
+          - "400"
+          - "401"
+          - "403"
+          - "404"
+          - "405"
+          - "406"
+          - "409"
+          - "416"
+          - "422"
+          - "500"
           - default
 
   cimpress-responses-error-not-rfc7807:
@@ -412,9 +411,8 @@ rules:
     recommended: true
     given: "$.paths[*].get.responses"
     then:
-      field: '200'
+      field: "200"
       function: truthy
-
 
   cimpress-responses-get-no-409:
     description: GET responses should not include a 409 response
@@ -432,9 +430,8 @@ rules:
     recommended: true
     given: "$.paths[*].post.responses"
     then:
-      field: '201'
+      field: "201"
       function: truthy
-
 
   cimpress-responses-put-204-status-code:
     description: A PUT operation should have a 204 status code for the response
@@ -443,7 +440,7 @@ rules:
     recommended: true
     given: "$.paths[*].put.responses"
     then:
-      field: '204'
+      field: "204"
       function: truthy
 
   cimpress-responses-put-500-status-code:
@@ -453,7 +450,7 @@ rules:
     recommended: true
     given: "$.paths[*].put.responses"
     then:
-      field: '500'
+      field: "500"
       function: truthy
 
   cimpress-responses-delete-204-status-code:
@@ -463,21 +460,19 @@ rules:
     recommended: true
     given: "$.paths[*].delete.responses"
     then:
-      field: '204'
+      field: "204"
       function: truthy
-
 
   cimpress-define-error-responses-404:
     description: Responses should contain common response - 404 (not found)
-    message: '{{description}}. Missing {{property}}'
+    message: "{{description}}. Missing {{property}}"
     severity: error
     recommended: true
     given: $.paths[?(@property.match(/.*\/{.*}.*/))]..responses
     then:
-      field: '404'
+      field: "404"
       function: truthy
 
-          
   cimpress-oas3-response-success-hal-body: # schemes and/or produces
     description: "All success responses MUST follow `application/hal+json` schema"
     severity: error
@@ -493,7 +488,7 @@ rules:
       functionOptions:
         schema:
           $ref: "./supermodel/HAL.yaml"
-  
+
   cimpress-oas2-response-success-hal: # schemes and/or produces
     description: "All success responses MUST be of media type `application/hal+json`"
     severity: error
@@ -526,19 +521,19 @@ rules:
         schema:
           $ref: "./supermodel/ProblemDetail.yaml"
 
-# ############################################################################################################
-# Section 6: Versioning & Specificaiton                                                                      #
-# ############################################################################################################
+  # ############################################################################################################
+  # Section 6: Versioning & Specificaiton                                                                      #
+  # ############################################################################################################
 
   cimpress-no-global-versioning:
-    description : Using global versions just forces all your clients to do a lot more work for each upgrade. Please consider using API Evolution instead. More- https://apisyouwonthate.com/blog/api-evolution-for-rest-http-apis.
+    description: Using global versions just forces all your clients to do a lot more work for each upgrade. Please consider using API Evolution instead. More- https://apisyouwonthate.com/blog/api-evolution-for-rest-http-apis.
     message: Using global versions just forces all your clients to do a lot more work for each upgrade. Please consider using API Evolution instead. More- https://apisyouwonthate.com/blog/api-evolution-for-rest-http-apis.
     given: "$.servers[*].url"
-    then: 
+    then:
       function: pattern
-      functionOptions: 
+      functionOptions:
         notMatch: "/v[1-9]+"
-        
+
   cimpress-semver:
     description: Version should use semantic versioning. {{value}} is not a valid version.
     message: Version should use semantic versioning. {{value}} is not a valid version.
@@ -550,29 +545,10 @@ rules:
       functionOptions:
         match: "^([0-9]+.[0-9]+.[0-9]+)$"
 
-# ############################################################################################################
-# Section 7: Security                                                                                        #
-# ############################################################################################################
+  # ############################################################################################################
+  # Section 7: Security                                                                                        #
+  # ############################################################################################################
 
-  cimpress-no-numeric-ids:
-    description: Please avoid exposing IDs as an integer, UUIDs are preferred.
-    message: Please avoid exposing IDs as an integer, UUIDs are preferred.
-    severity: error
-    recommended: true
-    given: $.paths..parameters[*].[?(@property === "name" && (@ === "id" || @.match(/(_id|Id)$/)))]^.schema
-    then:
-      function: schema
-      functionOptions: 
-        schema: 
-          type: object
-          not: 
-            properties:
-              type: 
-                const: integer
-          properties:
-            format: 
-              const: uuid
-              
   cimpress-no-http-basic:
     description: "Consider a more secure alternative to HTTP Basic."
     message: "HTTP Basic is an insecure way to pass credentials around, use an alternative."
@@ -584,4 +560,3 @@ rules:
       function: pattern
       functionOptions:
         notMatch: basic
-
