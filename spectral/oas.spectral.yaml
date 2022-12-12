@@ -4,3 +4,5 @@ extends:
 
 rules:
   operation-tag-defined: off
+  oas3-unused-component: off
+  oas2-unused-definition: off

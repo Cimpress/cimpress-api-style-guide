@@ -1,11 +1,9 @@
-extends: 
+extends:
   - "@stoplight/spectral-owasp-ruleset"
 
-rules: 
-# our swagger contains only relative path name 
-   owasp:api7:2019-security-hosts-https-oas3: off 
-#  We recommend to do rate limiting at api gateway level                                             
-   owasp:api4:2019-rate-limit: off
-   owasp:api4:2019-rate-limit-responses-429: off
-
-
+rules:
+  # our swagger contains only relative path name
+  owasp:api7:2019-security-hosts-https-oas3: off
+  #  We recommend to do rate limiting at api gateway level
+  owasp:api4:2019-rate-limit: off
+  owasp:api4:2019-rate-limit-responses-429: off
